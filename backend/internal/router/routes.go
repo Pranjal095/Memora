@@ -3,6 +3,7 @@ package router
 import (
 	"net/http"
 
+	"github.com/Pranjal095/EchoCast/backend/controller"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,4 +16,6 @@ func home(c *gin.Context) {
 
 func SetupRoutes(router *gin.Engine) {
 	router.GET("/", home)
+	router.POST("/signup", controller.Signup)
+	router.POST("/login", controller.Login)
 }

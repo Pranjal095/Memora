@@ -3,8 +3,9 @@ import { View, TextInput, Pressable, Text, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
+import Constants from "expo-constants";
 
-const API = "http://YOUR_BACKEND_HOST:8000";
+const API = Constants.expoConfig?.extra?.backendUrl;
 
 export default function Login() {
   const router = useRouter();

@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import { View, TextInput, Pressable, Text, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import axios from "axios";
+import Constants from "expo-constants";
 
-const API = "http://YOUR_BACKEND_HOST:8000";
+const API = Constants.expoConfig?.extra?.backendUrl;
 
 export default function Signup() {
   const router = useRouter();

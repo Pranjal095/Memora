@@ -6,7 +6,7 @@ export default {
     slug: 'EchoCast',
     scheme: 'echocast',
     extra: {
-      backendUrl: process.env.BACKEND_URL || 'http://YOUR_BACKEND_HOST:8000',
+      backendUrl: process.env.REACT_APP_BACKEND_URL || 'http://192.168.1.100:8000',
     },
   },
 };

@@ -11,8 +11,9 @@ import {
   ScrollView,
 } from 'react-native';
 import axios from 'axios';
+import Constants from 'expo-constants';
 
-const BACKEND_URL = 'http://YOUR_BACKEND_HOST:8000';
+const BACKEND_URL = Constants.expoConfig?.extra?.backendUrl;
 
 export default function HomeScreen() {
   const [url, setUrl] = useState('');

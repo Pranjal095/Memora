@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     textAlign: 'center',
-    marginTop: 24,
+    marginTop: 104,
   },
   description: {
     fontSize: 16,

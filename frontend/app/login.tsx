@@ -26,22 +26,24 @@ export default function Login() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Log In</Text>
+      <Text style={styles.title}>EchoCast</Text>
       <TextInput
         style={styles.input}
         placeholder="Email"
+        placeholderTextColor="#777"
         onChangeText={setEmail}
         autoCapitalize="none"
       />
       <TextInput
         style={styles.input}
         placeholder="Password"
+        placeholderTextColor="#777"
         secureTextEntry
         onChangeText={setPassword}
       />
       {!!error && <Text style={styles.error}>{error}</Text>}
       <Pressable style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Log In</Text>
+        <Text style={styles.buttonText}>Login</Text>
       </Pressable>
       <Pressable onPress={() => router.push("/signup")}>
         <Text style={styles.link}>No account? Sign up</Text>
@@ -51,21 +53,48 @@ export default function Login() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 24, justifyContent: "center" },
-  title: { fontSize: 32, marginBottom: 24, textAlign: "center" },
+  container: {
+    flex: 1,
+    backgroundColor: "#121212",
+    padding: 24,
+    justifyContent: "center",
+  },
+  title: {
+    fontSize: 32,
+    marginBottom: 24,
+    textAlign: "center",
+    color: "#fff",
+  },
   input: {
-    borderWidth: 1,
-    padding: 12,
-    marginBottom: 16,
+    backgroundColor: "#1e1e1e",
+    color: "#eee",
     borderRadius: 8,
+    padding: 14,
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: "#333",
+    marginBottom: 16,
   },
   button: {
     backgroundColor: "#0ff",
     padding: 16,
     borderRadius: 8,
     alignItems: "center",
+    marginVertical: 8,
   },
-  buttonText: { color: "#000", fontWeight: "bold" },
-  link: { textAlign: "center", marginTop: 16, color: "#0ff" },
-  error: { color: "#f55", marginBottom: 8, textAlign: "center" },
+  buttonText: {
+    color: "#121212",
+    fontSize: 18,
+    fontWeight: "700",
+  },
+  link: {
+    textAlign: "center",
+    marginTop: 16,
+    color: "#0ff",
+  },
+  error: {
+    color: "#f55",
+    marginBottom: 8,
+    textAlign: "center",
+  },
 });

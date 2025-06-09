@@ -1,5 +1,14 @@
 import React, { useState } from "react";
-import { View, TextInput, Pressable, Text, StyleSheet } from "react-native";
+import {
+  View,
+  TextInput,
+  Pressable,
+  Text,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from "react-native";
 import { useRouter } from "expo-router";
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
@@ -9,15 +18,16 @@ const API = Constants.expoConfig?.extra?.backendUrl;
 
 export default function Login() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
   const handleLogin = async () => {
     setError("");
     try {
-      const res = await axios.post(`${API}/login`, { email, password });
+      const res = await axios.post(`${API}/login`, { username, password });
       await SecureStore.setItemAsync("token", res.data.token);
+      await SecureStore.setItemAsync("username", username);
       router.replace("/");
     } catch (e: any) {
       setError(e.response?.data?.error || e.message);
@@ -25,36 +35,46 @@ export default function Login() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>EchoCast</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        placeholderTextColor="#777"
-        onChangeText={setEmail}
-        autoCapitalize="none"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        placeholderTextColor="#777"
-        secureTextEntry
-        onChangeText={setPassword}
-      />
-      {!!error && <Text style={styles.error}>{error}</Text>}
-      <Pressable style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Login</Text>
-      </Pressable>
-      <Pressable onPress={() => router.push("/signup")}>
-        <Text style={styles.link}>No account? Sign up</Text>
-      </Pressable>
-    </View>
+    <KeyboardAvoidingView
+      style={styles.flex}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+    >
+      <ScrollView
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+      >
+        <Text style={styles.title}>EchoCast</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Username"
+          placeholderTextColor="#777"
+          onChangeText={setUsername}
+          autoCapitalize="none"
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Password"
+          placeholderTextColor="#777"
+          secureTextEntry
+          onChangeText={setPassword}
+        />
+        {!!error && <Text style={styles.error}>{error}</Text>}
+        <Pressable style={styles.button} onPress={handleLogin}>
+          <Text style={styles.buttonText}>Login</Text>
+        </Pressable>
+        <Pressable onPress={() => router.push("/signup")}>
+          <Text style={styles.link}>No account? Sign up</Text>
+        </Pressable>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
+  flex: { flex: 1 },
   container: {
-    flex: 1,
+    flexGrow: 1,
     backgroundColor: "#121212",
     padding: 24,
     justifyContent: "center",

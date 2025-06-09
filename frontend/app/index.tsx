@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,16 +10,32 @@ import {
   Platform,
   ScrollView,
 } from 'react-native';
+import { useRouter } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
 import axios from 'axios';
 import Constants from 'expo-constants';
 
 const BACKEND_URL = Constants.expoConfig?.extra?.backendUrl;
 
 export default function HomeScreen() {
+  const router = useRouter();
+  const [username, setUsername] = useState<string>('');
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{ label: string; probability: number } | null>(null);
   const [error, setError] = useState<string>('');
+
+  useEffect(() => {
+    SecureStore.getItemAsync('username').then(user => {
+      if (user) setUsername(user);
+    });
+  }, []);
+
+  const handleLogout = async () => {
+    await SecureStore.deleteItemAsync('token');
+    await SecureStore.deleteItemAsync('username');
+    router.replace('/login');
+  };
 
   const analyze = async () => {
     setLoading(true);
@@ -41,18 +57,21 @@ export default function HomeScreen() {
       behavior={Platform.select({ ios: 'padding', android: 'height' })}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 20}
     >
-      <ScrollView
-        contentContainerStyle={styles.container}
-        keyboardShouldPersistTaps="handled"
-      >
+      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+        {/* HEADER */}
+        <View style={styles.header}>
+          <Text style={styles.welcome}>Welcome, {username || 'Guest'}</Text>
+          <Pressable onPress={handleLogout} style={styles.logoutLink}>
+            <Text style={styles.logoutLinkText}>Logout</Text>
+          </Pressable>
+        </View>
+
         <Text style={styles.title}>EchoCast</Text>
         <Text style={styles.description}>
           Welcome to EchoCast — your powerful AI powered audio forensics tool.
         </Text>
         <Text style={styles.description}>
-          Paste a YouTube, Instagram
-          Reel, or direct audio link below, and discover if the speech is human-spoken or AI-generated
-          in seconds.
+          Paste a YouTube, Instagram Reel, or direct audio link below, and discover if the speech is human-spoken or AI-generated in seconds.
         </Text>
 
         <TextInput
@@ -83,7 +102,7 @@ export default function HomeScreen() {
                 result.label === 'AI-generated' ? styles.alert : styles.safe,
               ]}
             >
-              {result.label === 'AI-generated' ? '🚨 AI-GENERATED' : '✅ HUMAN'}
+              {result.label === 'AI-generated' ? 'AI-GENERATED' : 'HUMAN'}
             </Text>
             <Text style={styles.cardText}>
               Confidence: {(result.probability * 100).toFixed(1)}%
@@ -91,7 +110,7 @@ export default function HomeScreen() {
           </View>
         )}
 
-        {error.length > 0 && <Text style={styles.error}>{error}</Text>}
+        {!!error && <Text style={styles.error}>{error}</Text>}
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -104,12 +123,35 @@ const styles = StyleSheet.create({
     padding: 24,
     justifyContent: 'flex-start',
   },
+  header: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  welcome: {
+    fontSize: 18,
+    color: '#fff',
+    fontWeight: '600',
+    marginTop: 50
+  },
+  logoutLink: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    marginTop: 50
+  },
+  logoutLinkText: {
+    color: '#0ff',
+    fontSize: 16,
+    fontWeight: '500',
+  },
   title: {
     fontSize: 36,
     color: '#fff',
     fontWeight: 'bold',
     textAlign: 'center',
-    marginTop: 104,
+    marginTop: 74,
   },
   description: {
     fontSize: 16,

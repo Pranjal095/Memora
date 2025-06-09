@@ -15,24 +15,25 @@ import (
 var jwtKey = []byte(os.Getenv("JWT_SECRET"))
 
 // CreateUser hashes the password and inserts a new user.
-func CreateUser(c context.Context, email, password string) error {
+func CreateUser(c context.Context, username, email, password string) error {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return fmt.Errorf("hash password: %w", err)
 	}
 	_, err = config.DB.Exec(c,
-		"INSERT INTO users(email,password) VALUES($1,$2)", email, string(hash))
+		"INSERT INTO users(username,email,password) VALUES($1,$2,$3)",
+		username, email, string(hash))
 	return err
 }
 
 // AuthenticateUser checks credentials and returns the user ID.
-func AuthenticateUser(c context.Context, email, password string) (int, error) {
+func AuthenticateUser(c context.Context, username, password string) (int, error) {
 	var (
 		id   int
 		hash string
 	)
 	err := config.DB.QueryRow(c,
-		"SELECT id,password FROM users WHERE email=$1", email).
+		"SELECT id,password FROM users WHERE username=$1", username).
 		Scan(&id, &hash)
 	if err != nil {
 		return 0, fmt.Errorf("no such user")

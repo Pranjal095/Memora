@@ -16,7 +16,12 @@ func Signup(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if err := helpers.CreateUser(context.Background(), req.Email, req.Password); err != nil {
+	if err := helpers.CreateUser(
+		context.Background(),
+		req.Username,
+		req.Email,
+		req.Password,
+	); err != nil {
 		if strings.Contains(err.Error(), "duplicate") || strings.Contains(err.Error(), "unique") {
 			c.JSON(http.StatusConflict, gin.H{"error": "email already in use"})
 		} else {
@@ -33,7 +38,11 @@ func Login(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	userID, err := helpers.AuthenticateUser(context.Background(), req.Email, req.Password)
+	userID, err := helpers.AuthenticateUser(
+		context.Background(),
+		req.Username,
+		req.Password,
+	)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
 		return

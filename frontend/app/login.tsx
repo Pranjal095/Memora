@@ -11,7 +11,6 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import axios from "axios";
-import * as SecureStore from "expo-secure-store";
 import Constants from "expo-constants";
 
 const API = Constants.expoConfig?.extra?.backendUrl;
@@ -25,10 +24,9 @@ export default function Login() {
   const handleLogin = async () => {
     setError("");
     try {
-      const res = await axios.post(`${API}/login`, { username, password });
-      await SecureStore.setItemAsync("token", res.data.token);
-      await SecureStore.setItemAsync("username", username);
-      router.replace("/");
+      await axios.post(`${API}/login`, { username, password });
+      await axios.post(`${API}/2fa/setup`, { username });
+      router.replace({ pathname: "/2fa", params: { username, next: "/" } });
     } catch (e: any) {
       setError(e.response?.data?.error || e.message);
     }

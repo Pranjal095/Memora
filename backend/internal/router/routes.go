@@ -18,4 +18,6 @@ func SetupRoutes(router *gin.Engine) {
 	router.GET("/", home)
 	router.POST("/signup", controller.Signup)
 	router.POST("/login", controller.Login)
+	router.POST("2fa/setup", controller.Setup2FA)
+	router.POST("2fa/verify", controller.Verify2FA)
 }

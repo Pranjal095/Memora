@@ -26,7 +26,8 @@ export default function Signup() {
     setError("");
     try {
       await axios.post(`${API}/signup`, { username, email, password });
-      router.push("/login");
+      await axios.post(`${API}/2fa/setup`, { username });
+      router.replace({ pathname: "/2fa", params: { username, next: "/" } });
     } catch (e: any) {
       setError(e.response?.data?.error || e.message);
     }

@@ -22,14 +22,12 @@ export default function RootLayout() {
     );
   }
 
-  const inAuthGroup = segments[0] === 'login' || segments[0] === 'signup';
+  const inAuthGroup = segments[0] === 'login' || segments[0] === 'signup' || segments[0] === '2fa';
 
-  // if not authed & not in /login or /signup → send to login
   if (!authed && !inAuthGroup) {
     return <Redirect href="/login" />;
   }
 
-  // if authed & trying to visit /login or /signup → send home
   if (authed && inAuthGroup) {
     return <Redirect href="/" />;
   }

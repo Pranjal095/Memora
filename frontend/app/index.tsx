@@ -58,7 +58,6 @@ export default function HomeScreen() {
       keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 20}
     >
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-        {/* HEADER */}
         <View style={styles.header}>
           <Text style={styles.welcome}>Welcome, {username || 'Guest'}</Text>
           <Pressable onPress={handleLogout} style={styles.logoutLink}>

@@ -14,7 +14,22 @@ import (
 
 var jwtKey = []byte(os.Getenv("JWT_SECRET"))
 
-// CreateUser hashes the password and inserts a new user.
+type User struct {
+	ID    int
+	Email string
+}
+
+func GetUserByUsername(ctx context.Context, username string) (*User, error) {
+	var u User
+	err := config.DB.QueryRow(ctx,
+		"SELECT id, email FROM users WHERE username=$1", username).
+		Scan(&u.ID, &u.Email)
+	if err != nil {
+		return nil, fmt.Errorf("lookup user: %w", err)
+	}
+	return &u, nil
+}
+
 func CreateUser(c context.Context, username, email, password string) error {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
@@ -26,7 +41,6 @@ func CreateUser(c context.Context, username, email, password string) error {
 	return err
 }
 
-// AuthenticateUser checks credentials and returns the user ID.
 func AuthenticateUser(c context.Context, username, password string) (int, error) {
 	var (
 		id   int
@@ -44,7 +58,6 @@ func AuthenticateUser(c context.Context, username, password string) (int, error)
 	return id, nil
 }
 
-// GenerateJWT issues a token for the given user ID.
 func GenerateJWT(userID int) (string, error) {
 	exp := time.Now().Add(7 * 24 * time.Hour)
 	claims := jwt.StandardClaims{

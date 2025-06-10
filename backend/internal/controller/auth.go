@@ -23,7 +23,7 @@ func Signup(c *gin.Context) {
 		req.Password,
 	); err != nil {
 		if strings.Contains(err.Error(), "duplicate") || strings.Contains(err.Error(), "unique") {
-			c.JSON(http.StatusConflict, gin.H{"error": "email already in use"})
+			c.JSON(http.StatusConflict, gin.H{"error": "username or email already in use"})
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "server error"})
 		}

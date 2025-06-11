@@ -58,11 +58,14 @@ export default function HomeScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1 }}
+      style={styles.flex}
       behavior={Platform.select({ ios: 'padding', android: 'height' })}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 20}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
     >
-      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+      >
         <View style={styles.header}>
           <Text style={styles.welcome}>Welcome, {username || 'Guest'}</Text>
           <Pressable onPress={handleLogout} style={styles.logoutLink}>
@@ -72,10 +75,10 @@ export default function HomeScreen() {
 
         <Text style={styles.title}>EchoCast</Text>
         <Text style={styles.description}>
-          Welcome to EchoCast — your powerful AI powered audio forensics tool.
+          Welcome to EchoCast, your powerful AI powered audio forensics tool.
         </Text>
         <Text style={styles.description}>
-          Paste a YouTube, Instagram Reel, or direct audio link below, and discover if the speech is human-spoken or AI-generated in seconds.
+          Paste a YouTube, Instagram Reel, or direct audio link below, and discover if the speech is human or AI-generated in seconds.
         </Text>
 
         <TextInput
@@ -121,6 +124,7 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  flex: { flex: 1 },
   container: {
     flexGrow: 1,
     backgroundColor: '#121212',
@@ -155,7 +159,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     textAlign: 'center',
-    marginTop: 74,
+    marginTop: 64,
   },
   description: {
     fontSize: 16,
@@ -173,7 +177,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     borderWidth: 1,
     borderColor: '#333',
-    marginBottom: 20,
+    marginTop: 10,
+    marginBottom: 30,
   },
   button: {
     backgroundColor: '#0ff',

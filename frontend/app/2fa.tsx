@@ -56,6 +56,7 @@ export default function Verify2FA() {
           keyboardType="numeric"
           value={code}
           onChangeText={setCode}
+          editable={!loading}
         />
         {!!error && <Text style={styles.error}>{error}</Text>}
         <Pressable

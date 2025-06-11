@@ -42,7 +42,12 @@ export default function HomeScreen() {
     setResult(null);
     setError('');
     try {
-      const { data } = await axios.post(`${BACKEND_URL}/analyze`, { url });
+      const token = await SecureStore.getItemAsync('token');
+      const { data } = await axios.post(
+        `${BACKEND_URL}/analyze`,
+        { url },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       setResult(data);
     } catch (e: any) {
       setError(e.response?.data?.error || e.message || 'Request failed');

@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/Pranjal095/EchoCast/backend/internal/controller"
+	"github.com/Pranjal095/EchoCast/backend/internal/middleware"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,8 +17,9 @@ func home(c *gin.Context) {
 
 func SetupRoutes(router *gin.Engine) {
 	router.GET("/", home)
-	router.POST("/signup", controller.Signup)
-	router.POST("/login", controller.Login)
-	router.POST("2fa/setup", controller.Setup2FA)
-	router.POST("2fa/verify", controller.Verify2FA)
+	router.POST("/signup", middleware.RateLimitMiddleware(), controller.Signup)
+	router.POST("/login", middleware.RateLimitMiddleware(), controller.Login)
+	router.POST("2fa/setup", middleware.RateLimitMiddleware(), controller.Setup2FA)
+	router.POST("2fa/verify", middleware.RateLimitMiddleware(), controller.Verify2FA)
+	router.POST("/analyze", middleware.AuthMiddleware(), controller.Analyze)
 }

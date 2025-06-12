@@ -1,46 +1,54 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException
-from pydantic import BaseModel
-import tempfile
-import shutil
-# from transformers import AutoProcessor, AutoModelForAudioClassification
-# import torch
+import os
+import sys
+import json
+import warnings
 
-app = FastAPI()
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+os.environ["TRANSFORMERS_NO_TF"]   = "1"
+os.environ["HF_HUB_DISABLE_IMAGE_PROCESSING"] = "1"
+os.environ["TRANSFORMERS_VERBOSITY"] = "error"
+os.environ["TRANSFORMERS_VERBOSITY_OPTIMIZED"] = "error"
 
-# processor = AutoProcessor.from_pretrained("MelodyMachine/Deepfake-audio-detection-V2")
-# model = AutoModelForAudioClassification.from_pretrained("MelodyMachine/Deepfake-audio-detection-V2")
+warnings.filterwarnings("ignore")
 
-class DetectResponse(BaseModel):
-    label: str
-    probability: float
+from transformers import pipeline
 
-@app.post("/detect-audio", response_model=DetectResponse)
-async def detect_audio(file: UploadFile = File(...)):
-    if not file.filename.endswith((".wav", ".mp3")):
-        raise HTTPException(status_code=400, detail="Unsupported format")
+def main():
+    audio_path = sys.argv[1]
 
-    # save to temp
-    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
-    contents = await file.read()
-    tmp.write(contents)
-    tmp.close()
+    clf = pipeline(
+        task="audio-classification",
+        model="MelodyMachine/Deepfake-audio-detection-V2",
+        framework="pt",
+        device=-1,
+        chunk_length_s=30,
+        chunk_stride_s=5
+    )
+    outputs = clf(audio_path)
 
-    # TODO: load audio, preprocess, run model
-    # inputs = processor(tmp.name, sampling_rate=16_000, return_tensors="pt")
-    # with torch.no_grad():
-    #   logits = model(**inputs).logits
-    # prob = torch.softmax(logits, dim=1)[0,1].item()
-    # label = "AI-generated" if prob > 0.5 else "human"
+    fake_scores = []
+    real_scores = []
+    for o in outputs:
+        lbl = o["label"].lower()
+        sc  = o["score"]
+        if lbl == "fake":
+            fake_scores.append(sc)
+        elif lbl == "real":
+            real_scores.append(sc)
+        else:
+            continue
 
-    # dummy:
-    prob = 0.85
-    label = "AI-generated"
+    if fake_scores:
+        label       = "AI-generated"
+        probability = max(fake_scores)
+    else:
+        label       = "Human"
+        probability = max(real_scores) if real_scores else 0.0
 
-    # cleanup
-    shutil.os.remove(tmp.name)
-
-    return {"label": label, "probability": prob}
+    sys.stdout.write(json.dumps({
+        "label":       label,
+        "probability": probability,
+    }))
 
 if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=5000, reload=True)
+    main()

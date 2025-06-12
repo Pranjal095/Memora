@@ -3,6 +3,7 @@ package controller
 import (
 	"net/http"
 
+	"github.com/Pranjal095/EchoCast/backend/internal/helpers"
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,16 +23,14 @@ func Analyze(c *gin.Context) {
 		return
 	}
 
-	// 1. detect type (YouTube / Instagram / direct)
-	// 2. run yt-dlp + ffmpeg via exec.Command → output.wav
-	//    e.g. exec.Command("yt-dlp", "-x", "--audio-format", "wav", req.URL, "-o", "temp.%(ext)s")
-	// 3. call external AI service:
-	//    curl -F "file=@temp.wav" http://localhost:5000/detect-audio
-	//
-	// For now return a dummy:
-	res := analyzeResponse{
-		Probability: 0.42,
-		Label:       "human",
+	res, err := helpers.AnalyzeURL(c.Request.Context(), req.URL)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
-	c.JSON(http.StatusOK, res)
+
+	c.JSON(http.StatusOK, analyzeResponse{
+		Probability: res.Probability,
+		Label:       res.Label,
+	})
 }

@@ -23,7 +23,7 @@ var audioExts = map[string]struct{}{
 	".mp3": {}, ".wav": {}, ".m4a": {}, ".flac": {}, ".ogg": {}, ".aac": {},
 }
 
-func AnalyzeURL(ctx context.Context, urlStr string) (Result, error) {
+func AnalyzeURL(c context.Context, urlStr string) (Result, error) {
 	tmp, err := os.MkdirTemp("", "echocast")
 	if err != nil {
 		return Result{}, fmt.Errorf("create temp dir: %w", err)
@@ -51,7 +51,7 @@ func AnalyzeURL(ctx context.Context, urlStr string) (Result, error) {
 		f.Close()
 		input += ext
 	} else {
-		cmd := exec.CommandContext(ctx,
+		cmd := exec.CommandContext(c,
 			"yt-dlp",
 			"-x", "--audio-format", "wav",
 			urlStr,
@@ -64,7 +64,7 @@ func AnalyzeURL(ctx context.Context, urlStr string) (Result, error) {
 	}
 
 	wav := filepath.Join(tmp, "audio.wav")
-	cmd := exec.CommandContext(ctx,
+	cmd := exec.CommandContext(c,
 		"ffmpeg", "-y",
 		"-i", input,
 		"-ar", "16000", "-ac", "1",
@@ -75,7 +75,7 @@ func AnalyzeURL(ctx context.Context, urlStr string) (Result, error) {
 	}
 
 	py := filepath.Join("microservice", "main.py")
-	outBytes, err := exec.CommandContext(ctx, "python3", py, wav).CombinedOutput()
+	outBytes, err := exec.CommandContext(c, "python3", py, wav).CombinedOutput()
 	if err != nil {
 		fmt.Printf("%s\n", outBytes)
 		return Result{}, fmt.Errorf("inference failed: %s", outBytes)
@@ -84,5 +84,6 @@ func AnalyzeURL(ctx context.Context, urlStr string) (Result, error) {
 	if err := json.Unmarshal(outBytes, &res); err != nil {
 		return Result{}, fmt.Errorf("invalid inference output: %w", err)
 	}
+	fmt.Println(res)
 	return res, nil
 }

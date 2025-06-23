@@ -73,9 +73,9 @@ export default function HomeScreen() {
           </Pressable>
         </View>
 
-        <Text style={styles.title}>EchoCast</Text>
+        <Text style={styles.title}>Memora</Text>
         <Text style={styles.description}>
-          Welcome to EchoCast, your powerful AI powered audio forensics tool.
+          Welcome to Memora, your powerful AI powered audio forensics tool.
         </Text>
         <Text style={styles.description}>
           Paste a YouTube, Instagram Reel, or direct audio link below, and discover if the speech is human or AI-generated in seconds.

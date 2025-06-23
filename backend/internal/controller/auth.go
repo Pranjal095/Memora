@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Pranjal095/EchoCast/backend/internal/helpers"
-	"github.com/Pranjal095/EchoCast/backend/internal/schema"
+	"github.com/Pranjal095/Memora/backend/internal/helpers"
+	"github.com/Pranjal095/Memora/backend/internal/schema"
 	"github.com/gin-gonic/gin"
 )
 

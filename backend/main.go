@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Pranjal095/EchoCast/backend/config"
-	"github.com/Pranjal095/EchoCast/backend/internal/router"
+	"github.com/Pranjal095/Memora/backend/config"
+	"github.com/Pranjal095/Memora/backend/internal/router"
 )
 
 func init() {

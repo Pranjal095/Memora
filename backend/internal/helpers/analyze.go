@@ -24,7 +24,7 @@ var audioExts = map[string]struct{}{
 }
 
 func AnalyzeURL(c context.Context, urlStr string) (Result, error) {
-	tmp, err := os.MkdirTemp("", "echocast")
+	tmp, err := os.MkdirTemp("", "memora")
 	if err != nil {
 		return Result{}, fmt.Errorf("create temp dir: %w", err)
 	}

@@ -1,4 +1,4 @@
-module github.com/Pranjal095/EchoCast/backend
+module github.com/Pranjal095/Memora/backend
 
 go 1.23.4
 

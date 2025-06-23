@@ -15,7 +15,7 @@ func SendOTPEmail(to, code string) error {
 	auth := smtp.PlainAuth("", user, pass, host)
 	addr := fmt.Sprintf("%s:%s", host, port)
 
-	subject := "Your EchoCast Authentication Code"
+	subject := "Your Memora Authentication Code"
 	body := fmt.Sprintf("Your verification code is: %s\n\nThis code expires in 5 minutes.", code)
 	msg := []byte("From: " + user + "\r\n" +
 		"To: " + to + "\r\n" +

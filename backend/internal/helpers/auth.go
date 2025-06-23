@@ -9,7 +9,7 @@ import (
 	"github.com/golang-jwt/jwt"
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/Pranjal095/EchoCast/backend/config"
+	"github.com/Pranjal095/Memora/backend/config"
 )
 
 var jwtKey = []byte(os.Getenv("JWT_SECRET"))

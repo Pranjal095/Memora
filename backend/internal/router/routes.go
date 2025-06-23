@@ -3,8 +3,8 @@ package router
 import (
 	"net/http"
 
-	"github.com/Pranjal095/EchoCast/backend/internal/controller"
-	"github.com/Pranjal095/EchoCast/backend/internal/middleware"
+	"github.com/Pranjal095/Memora/backend/internal/controller"
+	"github.com/Pranjal095/Memora/backend/internal/middleware"
 	"github.com/gin-gonic/gin"
 )
 

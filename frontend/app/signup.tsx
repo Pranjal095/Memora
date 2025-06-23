@@ -45,7 +45,7 @@ export default function Signup() {
             keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
         >
             <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-                <Text style={styles.title}>EchoCast</Text>
+                <Text style={styles.title}>Memora</Text>
 
                 <TextInput
                     style={styles.input}

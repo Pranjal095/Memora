@@ -3,7 +3,7 @@ package controller
 import (
 	"net/http"
 
-	"github.com/Pranjal095/EchoCast/backend/internal/helpers"
+	"github.com/Pranjal095/Memora/backend/internal/helpers"
 	"github.com/gin-gonic/gin"
 )
 

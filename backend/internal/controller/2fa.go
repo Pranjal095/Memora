@@ -7,7 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/Pranjal095/EchoCast/backend/internal/helpers"
+	"github.com/Pranjal095/Memora/backend/internal/helpers"
 )
 
 var rng = rand.New(rand.NewSource(time.Now().UnixNano()))

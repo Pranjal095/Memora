@@ -75,47 +75,18 @@ export default function HomeScreen() {
 
         <Text style={styles.title}>Memora</Text>
         <Text style={styles.description}>
-          Welcome to Memora, your powerful AI powered audio forensics tool.
+          Welcome to Memora, your personal photo gallery and memory assistant.
         </Text>
         <Text style={styles.description}>
-          Paste a YouTube, Instagram Reel, or direct audio link below, and discover if the speech is human or AI-generated in seconds.
+          Upload photos with optional notes and use text search to quickly recall your favorite moments.
         </Text>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Paste URL or audio link..."
-          placeholderTextColor="#777"
-          value={url}
-          onChangeText={setUrl}
-          autoCapitalize="none"
-          autoCorrect={false}
-        />
-
         <Pressable
-          style={[styles.button, !url || loading ? styles.buttonDisabled : null]}
-          onPress={analyze}
-          disabled={!url || loading}
+          style={[styles.button]}
+          onPress={() => router.push('/gallery')}
         >
-          <Text style={styles.buttonText}>{loading ? 'Analyzing...' : 'Analyze Now'}</Text>
+          <Text style={styles.buttonText}>Go to Gallery</Text>
         </Pressable>
-
-        {loading && <ActivityIndicator style={styles.loader} size="large" color="#0ff" />}
-
-        {result && (
-          <View style={styles.card}>
-            <Text
-              style={[
-                styles.cardTitle,
-                result.label === 'AI-generated' ? styles.alert : styles.safe,
-              ]}
-            >
-              {result.label === 'AI-generated' ? 'AI-GENERATED' : 'HUMAN'}
-            </Text>
-            <Text style={styles.cardText}>
-              Confidence: {(result.probability * 100).toFixed(1)}%
-            </Text>
-          </View>
-        )}
 
         {!!error && <Text style={styles.error}>{error}</Text>}
       </ScrollView>
@@ -169,23 +140,12 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     paddingHorizontal: 12,
   },
-  input: {
-    backgroundColor: '#1e1e1e',
-    color: '#eee',
-    borderRadius: 8,
-    padding: 14,
-    fontSize: 16,
-    borderWidth: 1,
-    borderColor: '#333',
-    marginTop: 10,
-    marginBottom: 30,
-  },
   button: {
     backgroundColor: '#0ff',
     paddingVertical: 16,
     borderRadius: 8,
     alignItems: 'center',
-    marginBottom: 20,
+    marginTop: 20,
     shadowColor: '#0ff',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.4,
@@ -196,36 +156,11 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#121212',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '700',
   },
   loader: {
     marginVertical: 24,
-  },
-  card: {
-    backgroundColor: '#1f1f1f',
-    borderRadius: 12,
-    padding: 24,
-    alignItems: 'center',
-    shadowColor: '#0ff',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.6,
-    shadowRadius: 12,
-  },
-  cardTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 12,
-  },
-  alert: {
-    color: '#f55',
-  },
-  safe: {
-    color: '#5f5',
-  },
-  cardText: {
-    fontSize: 18,
-    color: '#ddd',
   },
   error: {
     color: '#f55',

@@ -30,7 +30,7 @@ export default function Verify2FA() {
       const { data } = await axios.post(`${API}/2fa/verify`, { username, code });
       await SecureStore.setItemAsync('token', data.token);
       await SecureStore.setItemAsync('username', username);
-      router.replace(next || '/gallery');
+      router.replace(next || "/");
     } catch (e: any) {
       setError(e.response?.data?.error || e.message);
     } finally {

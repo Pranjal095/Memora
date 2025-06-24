@@ -1,5 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { View, Button, Image, FlatList, TextInput, Text, StyleSheet, Pressable } from 'react-native';
+import {
+  SafeAreaView,
+  View,
+  Text,
+  FlatList,
+  Image,
+  TextInput,
+  TouchableOpacity,
+  ActivityIndicator,
+  RefreshControl,
+  StyleSheet,
+} from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 import Constants from 'expo-constants';
@@ -11,73 +22,190 @@ export default function Photos() {
   const [photos, setPhotos] = useState<any[]>([]);
   const [note, setNote] = useState('');
   const [imageUri, setImageUri] = useState<string>();
+  const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    fetch();
+    fetchPhotos();
   }, []);
 
-  const fetch = async () => {
+  const fetchPhotos = async () => {
+    setRefreshing(true);
     const token = await SecureStore.getItemAsync('token');
-    const { data } = await axios.get(API + '/photos', { headers: { Authorization: `Bearer ${token}` } });
+    const { data } = await axios.get(API + '/photos', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
     setPhotos(data);
+    setRefreshing(false);
   };
 
   const pickAndUpload = async () => {
-    const res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images });
+    const res = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images
+    });
     if (!res.canceled && res.assets?.length) {
       setImageUri(res.assets[0].uri);
     }
   };
 
   const upload = async () => {
+    if (!imageUri) return;
+    setLoading(true);
     const token = await SecureStore.getItemAsync('token');
     const form = new FormData();
-    form.append('photo', { uri: imageUri, name: 'photo.jpg', type: 'image/jpeg' } as any);
+    form.append('photo', {
+      uri: imageUri,
+      name: 'photo.jpg',
+      type: 'image/jpeg'
+    } as any);
     form.append('note', note);
     await axios.post(API + '/photos', form, {
-      headers: { 
+      headers: {
         'Content-Type': 'multipart/form-data',
-        Authorization: `Bearer ${token}` 
+        Authorization: `Bearer ${token}`
       }
     });
     setImageUri(undefined);
     setNote('');
-    fetch();
+    setLoading(false);
+    fetchPhotos();
   };
 
+  const renderItem = ({ item }) => (
+    <View style={styles.card}>
+      <Image source={{ uri: item.url }} style={styles.image} />
+      {item.note ? (
+        <View style={styles.overlay}>
+          <Text style={styles.note}>{item.note}</Text>
+        </View>
+      ) : null}
+    </View>
+  );
+
   return (
-    <View style={{ flex: 1, padding: 16 }}>
-      <Pressable style={styles.button} onPress={pickAndUpload}><Text style={styles.btnText}>Pick Photo</Text></Pressable>
-      {imageUri && (
-        <>
-          <Image source={{ uri: imageUri }} style={{ width: 200, height: 200, marginTop: 8 }} />
-          <TextInput 
-            placeholder="Add a note (optional)" 
-            value={note} 
-            onChangeText={setNote} 
-            style={styles.input} 
-          />
-          <Pressable style={styles.button} onPress={upload}><Text style={styles.btnText}>Upload</Text></Pressable>
-        </>
-      )}
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.header}>My Gallery</Text>
+      <View style={styles.uploadSection}>
+        <TouchableOpacity style={styles.uploadButton} onPress={pickAndUpload}>
+          <Text style={styles.uploadText}>+ Add Photo</Text>
+        </TouchableOpacity>
+        {imageUri && (
+          <View style={styles.previewSection}>
+            <Image source={{ uri: imageUri }} style={styles.preview} />
+            <TextInput
+              style={styles.input}
+              placeholder="Add a note..."
+              placeholderTextColor="#888"
+              value={note}
+              onChangeText={setNote}
+            />
+            <TouchableOpacity
+              style={styles.uploadButton}
+              onPress={upload}
+              disabled={loading}
+            >
+              {loading
+                ? <ActivityIndicator color="#121212" />
+                : <Text style={styles.uploadText}>Upload</Text>
+              }
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
       <FlatList
         data={photos}
         keyExtractor={item => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.card}>
-            <Image source={{ uri: item.url }} style={{ width: 100, height: 100 }} />
-            {item.note ? <Text style={styles.note}>{item.note}</Text> : null}
-          </View>
-        )}
+        numColumns={2}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={fetchPhotos} />
+        }
+        contentContainerStyle={styles.list}
+        renderItem={renderItem}
+        ListEmptyComponent={
+          !refreshing && (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>
+                No photos yet. Tap “+ Add Photo” to get started!
+              </Text>
+            </View>
+          )
+        }
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  button: { backgroundColor: '#0ff', padding: 12, borderRadius: 6, marginTop: 8 },
-  btnText: { color: '#121212', textAlign: 'center', fontWeight: '600' },
-  input: { borderColor: '#333', borderWidth: 1, padding: 8, marginTop: 8, borderRadius: 4 },
-  card: { flexDirection: 'row', alignItems: 'center', marginVertical: 8 },
-  note: { marginLeft: 8, color: '#fff' },
+  container: { flex: 1, backgroundColor: '#121212' },
+  header: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#fff',
+    textAlign: 'center',
+    marginVertical: 16
+  },
+  uploadSection: { paddingHorizontal: 16 },
+  uploadButton: {
+    backgroundColor: '#0ff',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginBottom: 12
+  },
+  uploadText: {
+    color: '#121212',
+    fontSize: 16,
+    fontWeight: '700'
+  },
+  previewSection: {
+    alignItems: 'center',
+    marginBottom: 16
+  },
+  preview: {
+    width: 200,
+    height: 200,
+    borderRadius: 12
+  },
+  input: {
+    width: '100%',
+    backgroundColor: '#1e1e1e',
+    color: '#fff',
+    borderRadius: 8,
+    padding: 12,
+    marginTop: 8
+  },
+  list: {
+    paddingHorizontal: 8,
+    paddingBottom: 16
+  },
+  card: {
+    flex: 1,
+    margin: 8,
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  image: {
+    width: '100%',
+    aspectRatio: 1
+  },
+  overlay: {
+    position: 'absolute',
+    bottom: 0,
+    width: '100%',
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    padding: 6
+  },
+  note: {
+    color: '#fff',
+    fontSize: 12
+  },
+  emptyContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  emptyText: {
+    color: '#888',
+    fontSize: 16
+  }
 });

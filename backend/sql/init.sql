@@ -1,9 +1,18 @@
 DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS photos CASCADE;
 
 CREATE TABLE IF NOT EXISTS users (
   id          BIGSERIAL PRIMARY KEY,
   username    TEXT UNIQUE NOT NULL,
   email       TEXT UNIQUE NOT NULL,
   password    TEXT NOT NULL,
+  created_at  TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS photos (
+  id          BIGSERIAL PRIMARY KEY,
+  user_id     BIGINT NOT NULL REFERENCES users(id),
+  url         TEXT NOT NULL,
+  note        TEXT,
   created_at  TIMESTAMP NOT NULL DEFAULT NOW()
 );

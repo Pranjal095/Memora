@@ -40,6 +40,7 @@ func SetupRouter() *gin.Engine {
 	config.AllowCredentials = true
 	router.Use(cors.New(config))
 
+	router.Static("/uploads", "./uploads")
 	SetupRoutes(router)
 
 	return router

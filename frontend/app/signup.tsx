@@ -30,7 +30,7 @@ export default function Signup() {
         try {
             await axios.post(`${API}/signup`, { username, email, password });
             await axios.post(`${API}/2fa/setup`, { username });
-            router.replace({ pathname: "/2fa", params: { username, next: "/" } });
+            router.replace({ pathname: "/2fa", params: { username, next: "/gallery" } });
         } catch (e: any) {
             setError(e.response?.data?.error || e.message);
         } finally {

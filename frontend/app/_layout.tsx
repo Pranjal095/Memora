@@ -28,9 +28,5 @@ export default function RootLayout() {
     return <Redirect href="/login" />;
   }
 
-  if (authed && inAuthGroup) {
-    return <Redirect href="/" />;
-  }
-
   return <Slot />;
 }

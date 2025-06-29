@@ -2,10 +2,12 @@ package controller
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/Pranjal095/Memora/backend/config"
@@ -31,15 +33,22 @@ func AddPhoto(c *gin.Context) {
 	err = config.DB.QueryRow(
 		context.Background(),
 		`INSERT INTO photos(user_id,url,note) VALUES($1,$2,$3) RETURNING id`,
-		userID, "/"+dst, note,
+		userID, dst, note,
 	).Scan(&id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not save metadata"})
 		return
 	}
+
+	protocol := "http"
+	if c.Request.TLS != nil {
+		protocol = "https"
+	}
+	fullURL := fmt.Sprintf("%s://%s/%s", protocol, c.Request.Host, dst)
+
 	c.JSON(http.StatusCreated, schema.PhotoResponse{
 		ID:        id,
-		URL:       c.Request.Host + "/" + dst,
+		URL:       fullURL,
 		Note:      &note,
 		CreatedAt: time.Now().Format(time.RFC3339),
 	})
@@ -54,11 +63,40 @@ func ListPhotos(c *gin.Context) {
 		return
 	}
 	defer rows.Close()
+
+	protocol := "http"
+	if c.Request.TLS != nil {
+		protocol = "https"
+	}
+	baseURL := fmt.Sprintf("%s://%s", protocol, c.Request.Host)
+
 	var photos []schema.PhotoResponse
 	for rows.Next() {
 		var p schema.PhotoResponse
-		rows.Scan(&p.ID, &p.URL, &p.Note, &p.CreatedAt)
+		var note sql.NullString
+		var createdAt time.Time
+
+		err := rows.Scan(&p.ID, &p.URL, &note, &createdAt)
+		if err != nil {
+			continue
+		}
+
+		if note.Valid {
+			p.Note = &note.String
+		}
+
+		p.CreatedAt = createdAt.Format(time.RFC3339)
+
+		if !strings.HasPrefix(p.URL, "http") {
+			p.URL = baseURL + "/" + p.URL
+		}
 		photos = append(photos, p)
 	}
+
+	if err = rows.Err(); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "error reading photos"})
+		return
+	}
+
 	c.JSON(http.StatusOK, photos)
 }

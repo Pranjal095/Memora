@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   RefreshControl,
   StyleSheet,
+  ListRenderItem,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
@@ -18,8 +19,15 @@ import * as SecureStore from 'expo-secure-store';
 
 const API = Constants.expoConfig?.extra?.backendUrl;
 
+interface Photo {
+  id: number;
+  url: string;
+  note?: string;
+  created_at: string;
+}
+
 export default function Photos() {
-  const [photos, setPhotos] = useState<any[]>([]);
+  const [photos, setPhotos] = useState<Photo[]>([]);
   const [note, setNote] = useState('');
   const [imageUri, setImageUri] = useState<string>();
   const [loading, setLoading] = useState(false);
@@ -31,17 +39,23 @@ export default function Photos() {
 
   const fetchPhotos = async () => {
     setRefreshing(true);
-    const token = await SecureStore.getItemAsync('token');
-    const { data } = await axios.get(API + '/photos', {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    setPhotos(data);
-    setRefreshing(false);
+    try {
+      const token = await SecureStore.getItemAsync('token');
+      const { data } = await axios.get(API + '/photos', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setPhotos(data);
+    } catch (error) {
+      console.error('Error fetching photos:', error);
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   const pickAndUpload = async () => {
     const res = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 0.8,
     });
     if (!res.canceled && res.assets?.length) {
       setImageUri(res.assets[0].uri);
@@ -51,27 +65,32 @@ export default function Photos() {
   const upload = async () => {
     if (!imageUri) return;
     setLoading(true);
-    const token = await SecureStore.getItemAsync('token');
-    const form = new FormData();
-    form.append('photo', {
-      uri: imageUri,
-      name: 'photo.jpg',
-      type: 'image/jpeg'
-    } as any);
-    form.append('note', note);
-    await axios.post(API + '/photos', form, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        Authorization: `Bearer ${token}`
-      }
-    });
-    setImageUri(undefined);
-    setNote('');
-    setLoading(false);
-    fetchPhotos();
+    try {
+      const token = await SecureStore.getItemAsync('token');
+      const form = new FormData();
+      form.append('photo', {
+        uri: imageUri,
+        name: 'photo.jpg',
+        type: 'image/jpeg'
+      } as any);
+      form.append('note', note);
+      await axios.post(API + '/photos', form, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`
+        }
+      });
+      setImageUri(undefined);
+      setNote('');
+      fetchPhotos();
+    } catch (error) {
+      console.error('Error uploading photo:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const renderItem = ({ item }) => (
+  const renderItem: ListRenderItem<Photo> = ({ item }) => (
     <View style={styles.card}>
       <Image source={{ uri: item.url }} style={styles.image} />
       {item.note ? (
@@ -122,13 +141,13 @@ export default function Photos() {
         contentContainerStyle={styles.list}
         renderItem={renderItem}
         ListEmptyComponent={
-          !refreshing && (
+          !refreshing ? (
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>
-                No photos yet. Tap “+ Add Photo” to get started!
+                No photos yet. Tap "+ Add Photo" to get started!
               </Text>
             </View>
-          )
+          ) : undefined
         }
       />
     </SafeAreaView>
@@ -150,6 +169,7 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 8,
     alignItems: 'center',
+    marginTop: 20,
     marginBottom: 12
   },
   uploadText: {
@@ -172,7 +192,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     borderRadius: 8,
     padding: 12,
-    marginTop: 8
+    marginTop: 18
   },
   list: {
     paddingHorizontal: 8,

@@ -47,15 +47,20 @@ func AddPhoto(c *gin.Context) {
 		return
 	}
 
-	go func() {
-		_ = helpers.SendToEmbedService(context.Background(), dst, note, id)
-	}()
-
 	protocol := "http"
 	if c.Request.TLS != nil {
 		protocol = "https"
 	}
 	fullURL := fmt.Sprintf("%s://%s/%s", protocol, c.Request.Host, dst)
+
+	go func() {
+		_ = helpers.SendToEmbedService(
+			context.Background(),
+			fullURL,
+			note,
+			id,
+		)
+	}()
 
 	c.JSON(http.StatusCreated, schema.PhotoResponse{
 		ID:        id,

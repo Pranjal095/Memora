@@ -27,10 +27,10 @@ func SavePhotoFile(filename, userID string, file []byte) (string, error) {
 	return dst, nil
 }
 
-func CreatePhotoRecord(ctx context.Context, userID, url, note string) (int64, error) {
+func CreatePhotoRecord(c context.Context, userID, url, note string) (int64, error) {
 	var id int64
 	err := config.DB.QueryRow(
-		ctx,
+		c,
 		`INSERT INTO photos(user_id,url,note) VALUES($1,$2,$3) RETURNING id`,
 		userID, url, note,
 	).Scan(&id)
@@ -40,8 +40,8 @@ func CreatePhotoRecord(ctx context.Context, userID, url, note string) (int64, er
 	return id, nil
 }
 
-func GetUserPhotos(ctx context.Context, userID string) ([]schema.PhotoResponse, error) {
-	rows, err := config.DB.Query(ctx,
+func GetUserPhotos(c context.Context, userID string) ([]schema.PhotoResponse, error) {
+	rows, err := config.DB.Query(c,
 		`SELECT id,url,note,created_at FROM photos WHERE user_id=$1 ORDER BY created_at DESC`, userID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query photos: %w", err)

@@ -23,4 +23,5 @@ func SetupRoutes(router *gin.Engine) {
 	router.POST("2fa/verify", middleware.RateLimitMiddleware(), controller.Verify2FA)
 	router.POST("/photos", middleware.AuthMiddleware(), controller.AddPhoto)
 	router.GET("/photos", middleware.AuthMiddleware(), controller.ListPhotos)
+	router.GET("/search", middleware.AuthMiddleware(), controller.SearchPhotos)
 }

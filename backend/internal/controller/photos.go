@@ -47,6 +47,10 @@ func AddPhoto(c *gin.Context) {
 		return
 	}
 
+	go func() {
+		_ = helpers.SendToEmbedService(context.Background(), dst, note, id)
+	}()
+
 	protocol := "http"
 	if c.Request.TLS != nil {
 		protocol = "https"

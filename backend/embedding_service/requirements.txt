@@ -1,0 +1,5 @@
+flask
+torch
+transformers
+sentence-transformers
+qdrant-client

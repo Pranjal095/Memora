@@ -11,7 +11,9 @@ import {
   RefreshControl,
   StyleSheet,
   ListRenderItem,
+  Pressable,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 import Constants from 'expo-constants';
@@ -27,6 +29,7 @@ interface Photo {
 }
 
 export default function Photos() {
+  const router = useRouter();
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [note, setNote] = useState('');
   const [imageUri, setImageUri] = useState<string>();
@@ -103,6 +106,9 @@ export default function Photos() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <Pressable onPress={() => router.back()} style={styles.backButton}>
+        <Text style={styles.backText}>‹ Back</Text>
+      </Pressable>
       <Text style={styles.header}>My Gallery</Text>
       <View style={styles.uploadSection}>
         <TouchableOpacity style={styles.uploadButton} onPress={pickAndUpload}>
@@ -156,6 +162,8 @@ export default function Photos() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#121212' },
+  backButton: { padding: 16 },
+  backText: { color: '#0ff', fontSize: 16 },
   header: {
     fontSize: 24,
     fontWeight: '700',

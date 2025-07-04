@@ -88,6 +88,13 @@ export default function HomeScreen() {
           <Text style={styles.buttonText}>Go to Gallery</Text>
         </Pressable>
 
+        <Pressable
+          style={[styles.button]}
+          onPress={() => router.push('/search')}
+        >
+          <Text style={styles.buttonText}>Search Photos</Text>
+        </Pressable>
+
         {!!error && <Text style={styles.error}>{error}</Text>}
       </ScrollView>
     </KeyboardAvoidingView>

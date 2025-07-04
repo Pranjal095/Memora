@@ -1,3 +1,4 @@
+import os
 from flask import Flask, request, jsonify
 from sentence_transformers import SentenceTransformer
 from transformers import BlipProcessor, BlipForConditionalGeneration
@@ -11,7 +12,8 @@ blip = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-capti
 
 embedder = SentenceTransformer("all-MiniLM-L6-v2")
 
-qdrant = QdrantClient(url="http://qdrant:6333")
+QDRANT_URL = os.getenv("QDRANT_URL", "http://127.0.0.1:6333")
+qdrant = QdrantClient(url=QDRANT_URL)
 qdrant.recreate_collection(
     collection_name="photos",
     vectors_config={"size": embedder.get_sentence_embedding_dimension(), "distance": "Cosine"},

@@ -65,40 +65,27 @@ def embed():
 
 @app.route("/search", methods=["GET"])
 def search():
-    query     = request.args.get("q", "").strip()
-    limit     = int(request.args.get("k", "10"))
-    threshold = float(os.getenv("SEARCH_THRESHOLD", "0.3"))
+    query = request.args.get("q", "").strip()
+    k     = int(request.args.get("k",  "10"))
+    qvec = embedder.encode(query).tolist()
+
+    resp = qdrant.search(
+        collection_name=COLLECTION,
+        query_vector=qvec,
+        limit=k,
+        with_payload=True,
+    )
 
     hits = []
-    if query:
-        qvec = embedder.encode(query).tolist()
-
-        text_filter = Filter(
-            should=[
-                FieldCondition(key="note",    match=MatchValue(value=query)),
-                FieldCondition(key="caption", match=MatchValue(value=query)),
-            ]
-        )
-
-        resp = qdrant.search(
-            collection_name=COLLECTION,
-            query_vector=qvec,
-            limit=limit,
-            with_payload=True,
-            query_filter=text_filter
-        )
-
-        print(f"QUERY: {query}")
-        for h in resp:
-            print(
-                f"  id={h.id:<5} score={h.score:.4f}"
-                f"  note={h.payload['note']!r}"
-                f"  caption={h.payload['caption']!r}"
-            )
-
-        for h in resp:
-            if h.score <= threshold:
-                hits.append({"id": h.id, "score": h.score, "payload": h.payload})
+    max_distance = float(os.getenv("SEARCH_MAX_DISTANCE", "0.8"))
+    for h in resp:
+        if h.score <= max_distance:
+            hits.append({
+                "id":     h.id,
+                "score":  h.score,
+                "note":   h.payload.get("note"),
+                "caption":h.payload.get("caption"),
+            })
 
     return jsonify(hits), 200
 

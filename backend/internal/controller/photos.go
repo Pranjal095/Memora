@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/Pranjal095/Memora/backend/internal/helpers"
 	"github.com/Pranjal095/Memora/backend/internal/schema"
 	"github.com/gin-gonic/gin"
+	exif "github.com/rwcarlsen/goexif/exif"
 )
 
 func AddPhoto(c *gin.Context) {
@@ -47,6 +49,16 @@ func AddPhoto(c *gin.Context) {
 		return
 	}
 
+	var city string
+	if f, err := os.Open(dst); err == nil {
+		if x, err := exif.Decode(f); err == nil {
+			if lat, lon, err := x.LatLong(); err == nil {
+				city, _ = reverseGeocode(lat, lon)
+			}
+		}
+		f.Close()
+	}
+
 	protocol := "http"
 	if c.Request.TLS != nil {
 		protocol = "https"
@@ -58,6 +70,7 @@ func AddPhoto(c *gin.Context) {
 			context.Background(),
 			fullURL,
 			note,
+			city,
 			id,
 		)
 	}()

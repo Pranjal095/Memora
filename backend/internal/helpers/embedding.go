@@ -12,11 +12,17 @@ import (
 type embedRequest struct {
 	ImagePath string `json:"image_path"`
 	Note      string `json:"note"`
+	City      string `json:"city"`
 	ID        int64  `json:"id"`
 }
 
-func SendToEmbedService(c context.Context, imgPath string, note string, id int64) error {
-	req := embedRequest{ImagePath: imgPath, Note: note, ID: id}
+func SendToEmbedService(c context.Context, imgPath, note, city string, id int64) error {
+	req := embedRequest{
+		ImagePath: imgPath,
+		Note:      note,
+		City:      city,
+		ID:        id,
+	}
 	b, _ := json.Marshal(req)
 	client := &http.Client{Timeout: 2 * time.Minute}
 	resp, err := client.Post("http://localhost:5000/embed", "application/json", bytes.NewReader(b))
